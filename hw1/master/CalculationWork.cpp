@@ -124,6 +124,11 @@ namespace {
         if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, socket.GetRawSocket(), &ev) == -1) {
             throw std::runtime_error("Failed to add event to epoll");
         }
+
+        std::string message;
+        message.resize(sizeof(task));
+        memcpy(message.data(), &task, sizeof(task));
+        send(socket.GetRawSocket(), message.data(), message.size(), 0);
     }
 
     void InitGlobals(const calculations::ArgPack& arg_pack, WorkersRegistry* registry) {

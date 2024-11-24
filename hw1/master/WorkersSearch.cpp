@@ -39,7 +39,9 @@ namespace workersearch {
             if (buffer.GetMessage() == messages::kAcquaintanceMessageResponse) {
                 std::cout << "Got acquaitance response from " << from.sin_addr.s_addr << std::endl;
                 if (!registry.DoesContain(from)) {
-                    registry.Add(from);
+                    struct sockaddr_in addr_for_tasks = from;
+                    addr_for_tasks.sin_port = htons(kWorkPort);
+                    registry.Add(addr_for_tasks);
                     std::cout << "Registered " << from.sin_addr.s_addr << std::endl;
                 }
             } else {
