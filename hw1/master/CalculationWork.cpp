@@ -41,7 +41,8 @@ namespace {
     std::unordered_map<int, sockaddr_in> fd_to_servers;
     std::unordered_map<sockaddr_in, TCPKeepAliveSocket, sockaddrhash, sockaddrequal> servers_to_sockets;
     std::unordered_map<sockaddr_in, Task, sockaddrhash, sockaddrequal> servers_to_tasks;
-    std::unordered_map<size_t, double> ready;
+    std::unordered_map<size_t, double> results;
+    std::queue<Task> tasks; 
 
 
     std::queue<Task> GetTasksQueue(size_t iters_per_task, const calculations::ArgPack& arg_pack) {
@@ -58,8 +59,16 @@ namespace {
         return queue;
     }
 
+    void ClearMappings(const sockaddr_in& server, int fd) {
+        servers_to_tasks.erase(server);
+        servers_to_sockets.erase(server);
+        fd_to_servers.erase(fd);
+    }
+
     void ProcessSocketEvent(int fd) {
-        std::lock_guard lock(*mutex_);      
+        std::lock_guard lock(*mutex_);
+        const sockaddr_in& server = fd_to_servers.at(fd);
+        TCPKeepAliveSocket* sock = &servers_to_sockets.at(server);
 
         MessageBuffer buffer(kBufferSize);
         try {
@@ -69,20 +78,19 @@ namespace {
             Answer answer;
             std::memcpy((void*)&answer, message.data(), message.size());
 
-            if (!ready.contains(answer.index)) {
+            if (!results.contains(answer.index)) {
                 std::cout << "Got answer to task " << answer.index << ". The value is " << answer.value << std::endl;
-                ready[answer.index] = answer.value;
+                results[answer.index] = answer.value;
             }
-
-            std::lock_guard lock(mappings_mutex_);
-            is_server_busy[server] = false;
 
         } catch (std::runtime_error& error) {
             std::cout << "Found dead server: " << server.sin_addr.s_addr << std::endl;
-            std::lock_guard lock(mappings_mutex_);
-            is_server_busy.erase(server);
-            fd_to_servers.erase(fd);
+            std::cout << "Returning task with index " << servers_to_tasks[server].index << " to the tasks queue" << std::endl;
+            
+            tasks.push(servers_to_tasks[server]);
         }
+
+        ClearMappings(server, fd);
     }
 
     void EpollWorker(int epoll_fd, const bool* should_run) {
@@ -117,28 +125,53 @@ namespace {
             throw std::runtime_error("Failed to add event to epoll");
         }
     }
+
+    void InitGlobals(const calculations::ArgPack& arg_pack, size_t iters_per_task, WorkersRegistry* registry) {
+        mutex_ = &registry->GetMutex();
+        tasks = GetTasksQueue(iters_per_task, arg_pack);
+    }
+
+    double CalculateResultingValue() {
+        double result = 0;
+        for (const auto [_, value] : results) {
+            result += value;
+        }
+        return result;
+    }
+
+    int GetEpoll() {
+        int epoll_fd = epoll_create1(0);
+        if (epoll_fd == -1) {
+            throw std::runtime_error("Failed to create epoll");
+        }
+        return epoll_fd;
+    }
 }
 
 
 namespace calculations {
 
     double GetAnswer(const ArgPack& arg_pack, size_t iters_per_task, WorkersRegistry* registry) {
-        if (arg_pack.from > arg_pack.to) {
-            throw std::runtime_error("Invalid params: from > to");
-        }
+        InitGlobals(arg_pack, iters_per_task, registry);
 
-        int epoll_fd;
+        int epoll_fd = GetEpoll();
+        bool should_run = true;
+        std::thread epoll_worker(EpollWorker, epoll_fd, &should_run);
+        
+        const size_t tasks_count = tasks.size();
+        while (true) {
+            std::lock_guard lock(registry->GetMutex());
 
+            if (results.size() == tasks_count) {
+                break;
+            }
 
-        std::queue<Task> tasks = GetTasksQueue(iters_per_task, arg_pack);
-        while (!tasks.empty()) {
             const auto task = tasks.front();
             tasks.pop();
 
             bool assigned = false;
-            std::lock_guard lock(registry->GetMutex());
             for (const auto& server : registry->GetRawSet()) {
-                if (servers_to_sockets.contains(server)) {
+                if (servers_to_tasks.contains(server)) {
                     continue;
                 }
 
@@ -158,6 +191,12 @@ namespace calculations {
                 std::this_thread::sleep_for(std::chrono::milliseconds(500)); // backoff
             }
         }
+
+        should_run = false;
+        epoll_worker.join();
+
+        const double result = CalculateResultingValue();
+        return result;
     }
 
 };
