@@ -174,6 +174,13 @@ namespace calculations {
                 break;
             }
 
+            if (tasks.empty()) {
+                lock.unlock(); 
+                std::cout << "No tasks to assign, backoff" << std::endl;
+                std::this_thread::sleep_for(std::chrono::milliseconds(5000)); // backoff
+                continue;
+            }
+
             const auto task = tasks.front();
             tasks.pop();
 

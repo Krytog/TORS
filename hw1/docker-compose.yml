@@ -13,3 +13,11 @@ services:
   worker2:
     build: .
     command: ./worker/worker
+
+  worker3:
+    build: .
+    command: ./worker/worker
+  
+  worker4:
+    build: .
+    command: ./worker/worker
