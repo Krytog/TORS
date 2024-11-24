@@ -20,7 +20,7 @@ void work(double from, double to, double step, size_t iters) {
         .iters_per_task = iters,
     };
 
-    const auto result = calculations::GetAnswer(arg_pack);
+    const auto result = calculations::GetAnswer(arg_pack, &registry);
     std::cout << "The integral equals to " << result << std::endl;
 
     should_run = false;

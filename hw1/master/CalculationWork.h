@@ -1,5 +1,7 @@
 #pragma once
 
+#include <master/WorkersRegistry.h>
+
 #include <cstddef>
 
 namespace calculations {
@@ -11,5 +13,5 @@ namespace calculations {
         size_t iters_per_task;
     };
 
-    double GetAnswer(const ArgPack& arg_pack);
+    double GetAnswer(const ArgPack& arg_pack, WorkersRegistry* registry);
 }
