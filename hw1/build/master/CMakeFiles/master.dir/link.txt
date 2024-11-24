@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/master.dir/main.cpp.o CMakeFiles/master.dir/WorkersSearch.cpp.o CMakeFiles/master.dir/WorkersRegistry.cpp.o -o master  ../common/libcommon.a 

@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/worker.dir/main.cpp.o -o worker  ../common/libcommon.a 

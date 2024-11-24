@@ -45,12 +45,12 @@ namespace {
     std::queue<Task> tasks; 
 
 
-    std::queue<Task> GetTasksQueue(size_t iters_per_task, const calculations::ArgPack& arg_pack) {
+    std::queue<Task> GetTasksQueue(const calculations::ArgPack& arg_pack) {
         std::queue<Task> queue;
         double current = arg_pack.from;
         size_t index = 0;
         while (current < arg_pack.to) {
-            double to = current + arg_pack.step * iters_per_task;
+            double to = current + arg_pack.step * arg_pack.iters_per_task;
             to = std::min(to, arg_pack.to);
             queue.push(Task{current, to, arg_pack.step, index});
             current = to;
@@ -126,9 +126,9 @@ namespace {
         }
     }
 
-    void InitGlobals(const calculations::ArgPack& arg_pack, size_t iters_per_task, WorkersRegistry* registry) {
+    void InitGlobals(const calculations::ArgPack& arg_pack, WorkersRegistry* registry) {
         mutex_ = &registry->GetMutex();
-        tasks = GetTasksQueue(iters_per_task, arg_pack);
+        tasks = GetTasksQueue(arg_pack);
     }
 
     double CalculateResultingValue() {
@@ -151,8 +151,8 @@ namespace {
 
 namespace calculations {
 
-    double GetAnswer(const ArgPack& arg_pack, size_t iters_per_task, WorkersRegistry* registry) {
-        InitGlobals(arg_pack, iters_per_task, registry);
+    double GetAnswer(const ArgPack& arg_pack, WorkersRegistry* registry) {
+        InitGlobals(arg_pack, registry);
 
         int epoll_fd = GetEpoll();
         bool should_run = true;

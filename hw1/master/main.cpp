@@ -1,28 +1,41 @@
 #include <master/WorkersRegistry.h>
 #include <master/WorkersSearch.h>
+#include <master/CalculationWork.h>
 
+#include <stdlib.h>
 #include <thread>
 #include <iostream>
 
 
-void work() {
+void work(double from, double to, double step, size_t iters) {
     WorkersRegistry registry;
     bool should_run = true;
 
     std::thread workers_seacher = std::thread(workersearch::WorkerSearchRoutine, &should_run, &registry);
 
-    for (int i = 0; i < 999999999; ++i) {
+    calculations::ArgPack arg_pack{
+        .from = from,
+        .to = to,
+        .step = step,
+        .iters_per_task = iters,
+    };
 
-    }
+    const auto result = calculations::GetAnswer(arg_pack);
+    std::cout << "The integral equals to " << result << std::endl;
 
     should_run = false;
     workers_seacher.join();
 }
 
-int main() {
+int main(int argc, char** argv) {
     std::cout << "Master started" << std::endl;
     try {
-        work();
+        double from = atof(argv[0]);
+        double to = atof(argv[1]);
+        double step = atof(argv[2]);
+        size_t iters = atoll(argv[3]);
+
+        work(from, to, step, iters);
     } catch (std::runtime_error& error)  {
         std::cout << "Something went wrong: " << error.what() << std::endl;
     }
