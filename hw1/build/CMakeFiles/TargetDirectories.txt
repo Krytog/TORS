@@ -1,0 +1,11 @@
+/home/master/Desktop/TORS/TORS/hw1/build/CMakeFiles/edit_cache.dir
+/home/master/Desktop/TORS/TORS/hw1/build/CMakeFiles/rebuild_cache.dir
+/home/master/Desktop/TORS/TORS/hw1/build/common/CMakeFiles/common.dir
+/home/master/Desktop/TORS/TORS/hw1/build/common/CMakeFiles/edit_cache.dir
+/home/master/Desktop/TORS/TORS/hw1/build/common/CMakeFiles/rebuild_cache.dir
+/home/master/Desktop/TORS/TORS/hw1/build/master/CMakeFiles/master.dir
+/home/master/Desktop/TORS/TORS/hw1/build/master/CMakeFiles/edit_cache.dir
+/home/master/Desktop/TORS/TORS/hw1/build/master/CMakeFiles/rebuild_cache.dir
+/home/master/Desktop/TORS/TORS/hw1/build/worker/CMakeFiles/worker.dir
+/home/master/Desktop/TORS/TORS/hw1/build/worker/CMakeFiles/edit_cache.dir
+/home/master/Desktop/TORS/TORS/hw1/build/worker/CMakeFiles/rebuild_cache.dir
