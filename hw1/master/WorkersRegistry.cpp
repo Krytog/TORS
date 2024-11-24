@@ -2,6 +2,7 @@
 
 WorkersRegistry::WorkersRegistry() = default;
 
+
 void WorkersRegistry::Add(const sockaddr_in& addr) {
     std::lock_guard lock(mutex_);
     registry_.insert(addr);

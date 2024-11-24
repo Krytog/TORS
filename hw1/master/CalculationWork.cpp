@@ -16,6 +16,7 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <mutex>
 
 
 const int kMaxEpollEvents = 256;
@@ -70,6 +71,7 @@ namespace {
         const sockaddr_in& server = fd_to_servers.at(fd);
         TCPKeepAliveSocket* sock = &servers_to_sockets.at(server);
 
+
         MessageBuffer buffer(kBufferSize);
         try {
             sock->Recieve(buffer.GetBufferForReading());
@@ -112,23 +114,23 @@ namespace {
     }
 
     void SendTaskToServer(const sockaddr_in& server, const Task& task, int epoll_fd) {
-        servers_to_sockets[server] = TCPKeepAliveSocket();
-        TCPKeepAliveSocket& socket = servers_to_sockets[server];
-
-        socket.Connect(server);
+        servers_to_sockets.emplace(std::piecewise_construct, std::forward_as_tuple(server), std::forward_as_tuple()); // we can't move
+        TCPKeepAliveSocket& sock = servers_to_sockets[server];
+        
+        sock.Connect(server);
 
         struct epoll_event ev;
         ev.events = EPOLLIN;
-        ev.data.fd = socket.GetRawSocket();
+        ev.data.fd = sock.GetRawSocket();
 
-        if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, socket.GetRawSocket(), &ev) == -1) {
+        if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, sock.GetRawSocket(), &ev) == -1) {
             throw std::runtime_error("Failed to add event to epoll");
         }
 
         std::string message;
         message.resize(sizeof(task));
         memcpy(message.data(), &task, sizeof(task));
-        send(socket.GetRawSocket(), message.data(), message.size(), 0);
+        send(sock.GetRawSocket(), message.data(), message.size(), 0);
     }
 
     void InitGlobals(const calculations::ArgPack& arg_pack, WorkersRegistry* registry) {
@@ -164,8 +166,9 @@ namespace calculations {
         std::thread epoll_worker(EpollWorker, epoll_fd, &should_run);
         
         const size_t tasks_count = tasks.size();
+        std::cout << "Calculation will take " << tasks_count << " tasks" << std::endl;
         while (true) {
-            std::lock_guard lock(registry->GetMutex());
+            std::unique_lock lock(registry->GetMutex());
 
             if (results.size() == tasks_count) {
                 break;
@@ -184,6 +187,7 @@ namespace calculations {
                     SendTaskToServer(server, task, epoll_fd);
                     assigned = true;
                     servers_to_tasks[server] = task;
+                    fd_to_servers[servers_to_sockets.at(server).GetRawSocket()] = server;
                     break;
                 } catch (std::runtime_error& error) {
                     std::cout << "Eror when assigning task " << error.what() << std::endl;
@@ -192,8 +196,9 @@ namespace calculations {
 
             if (!assigned) {
                 tasks.push(task);
+                lock.unlock(); 
                 std::cout << "Failed to assign task to whomever, backoff" << std::endl;
-                std::this_thread::sleep_for(std::chrono::milliseconds(500)); // backoff
+                std::this_thread::sleep_for(std::chrono::milliseconds(5000)); // backoff
             }
         }
 

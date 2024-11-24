@@ -43,6 +43,8 @@ namespace workersearch {
                     addr_for_tasks.sin_port = htons(kWorkPort);
                     registry.Add(addr_for_tasks);
                     std::cout << "Registered " << from.sin_addr.s_addr << std::endl;
+                } else {
+                    std::cout << "Got response from already registered worker" << std::endl;
                 }
             } else {
                 std::cout << "Recieved something strange: " << buffer.GetMessage() << std::endl;

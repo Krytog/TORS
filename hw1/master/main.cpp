@@ -30,10 +30,13 @@ void work(double from, double to, double step, size_t iters) {
 int main(int argc, char** argv) {
     std::cout << "Master started" << std::endl;
     try {
-        double from = atof(argv[0]);
-        double to = atof(argv[1]);
-        double step = atof(argv[2]);
-        size_t iters = atoll(argv[3]);
+        double from = atof(argv[1]);
+        double to = atof(argv[2]);
+        double step = atof(argv[3]);
+        size_t iters = atoll(argv[4]);
+
+        std::cout << "Will count integral with given params: " << from << " "
+        << to << " " << step << " " << iters << std::endl;
 
         work(from, to, step, iters);
     } catch (std::runtime_error& error)  {
