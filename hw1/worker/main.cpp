@@ -15,6 +15,8 @@ void RegisterAtMaster() {
 
     MessageBuffer buffer(kBufferSize);
     const auto sender_addr = socket.Recieve(buffer.GetBufferForReading());
+    std::cout << "MASTER ADDRESS IS " << sender_addr.sin_addr.s_addr << std::endl;
+    std::cout << "MASTER PORT IS " << sender_addr.sin_port << std::endl;
     if (buffer.GetMessage() != messages::kAcquaintanceMessageRequest) {
         std::cout << buffer.GetMessage() << std::endl;
         throw std::runtime_error("Recieved unexpected message on broadcast port");

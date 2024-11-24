@@ -1,0 +1,15 @@
+services:
+  master:
+    build: .
+    command: ./master/master
+    depends_on:
+      - worker1
+      - worker2
+
+  worker1:
+    build: .
+    command: ./worker/worker
+  
+  worker2:
+    build: .
+    command: ./worker/worker
