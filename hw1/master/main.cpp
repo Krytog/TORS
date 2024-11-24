@@ -1,27 +1,22 @@
-#include <common/Sockets.h>
-#include <common/Address.h>
-#include <common/Messages.h>
-#include <common/MessageBuffer.h>
+#include <master/WorkersRegistry.h>
+#include <master/WorkersSearch.h>
 
+#include <thread>
 #include <iostream>
 
 
-const int kAcquaitancePort = 31337;
-const size_t kBufferSize = 1024;
-
-
 void work() {
-    UDPBroadcastSocket socket;
+    WorkersRegistry registry;
+    bool should_run = true;
 
-    socket.Send(messages::kAcquaintanceMessageRequest, Address(INADDR_BROADCAST, kAcquaitancePort).Get());
+    std::thread workers_seacher = std::thread(workersearch::WorkerSearchRoutine, &should_run, &registry);
 
-    while (true) {
-        MessageBuffer buffer(kBufferSize);
-        const auto from = socket.Recieve(buffer.GetBufferForReading());
+    for (int i = 0; i < 999999999; ++i) {
 
-        std::cout << "GOT ANSWER " << buffer.GetMessage() << std::endl;
-        std::cout << "FROM " << from.sin_addr.s_addr << std::endl;
     }
+
+    should_run = false;
+    workers_seacher.join();
 }
 
 int main() {

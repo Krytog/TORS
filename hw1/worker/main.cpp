@@ -1,12 +1,9 @@
 #include <common/Sockets.h>
 #include <common/MessageBuffer.h>
 #include <common/Messages.h>
+#include <common/Constants.h>
 
 #include <iostream>
-
-
-const int kAcquaitancePort = 31337;
-const size_t kBufferSize = 1024;
 
 
 void RegisterAtMaster() {

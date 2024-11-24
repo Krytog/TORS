@@ -45,8 +45,8 @@ struct sockaddr_in UDPSocket::Recieve(std::pair<std::string*, size_t*> dest) con
 void UDPSocket::Bind(int port) const {
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = INADDR_ANY;
-    addr.sin_port = port;
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    addr.sin_port = htons(port);
     if (bind(fd_, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
         throw std::runtime_error("Failed to bind socket");
     }
