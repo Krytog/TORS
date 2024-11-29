@@ -95,19 +95,19 @@ TCPKeepAliveSocket::TCPKeepAliveSocket() {
         throw std::runtime_error("Failed to enable keepalive");
     }
 
-    constexpr int keepalive_idle = 5;
+    constexpr int keepalive_idle = 3;
     optval = keepalive_idle;
     if (setsockopt(fd_, IPPROTO_TCP, TCP_KEEPIDLE, &optval, sizeof(optval)) < 0) {
         throw std::runtime_error("Failed to set keepidle");
     }
 
-    constexpr int keepalive_interval_probe = 3;
+    constexpr int keepalive_interval_probe = 1;
     optval = keepalive_interval_probe;
     if (setsockopt(fd_, IPPROTO_TCP, TCP_KEEPINTVL, &optval, sizeof(optval)) < 0) {
         throw std::runtime_error("Failed to set keepintvl");
     }
 
-    constexpr int keepalive_probes_count = 3;
+    constexpr int keepalive_probes_count = 2;
     optval = keepalive_probes_count;
     if (setsockopt(fd_, IPPROTO_TCP, TCP_KEEPCNT, &optval, sizeof(optval)) < 0) {
         throw std::runtime_error("Failed to set keepcnt");
