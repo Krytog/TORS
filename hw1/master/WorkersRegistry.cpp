@@ -13,6 +13,10 @@ void WorkersRegistry::Remove(const sockaddr_in& addr) {
     registry_.erase(addr);
 }
 
+void WorkersRegistry::RemoveUnsafe(const sockaddr_in& addr) {
+    registry_.erase(addr);
+}
+
 bool WorkersRegistry::DoesContain(const sockaddr_in& addr) {
     return registry_.contains(addr);
 }

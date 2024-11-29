@@ -27,6 +27,8 @@ public:
 
     void Remove(const sockaddr_in& addr);
 
+    void RemoveUnsafe(const sockaddr_in& addr);
+
     bool DoesContain(const sockaddr_in& addr);
 
     const std::unordered_set<sockaddr_in, sockaddrhash, sockaddrequal>& GetRawSet() const;

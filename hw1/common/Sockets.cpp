@@ -37,7 +37,7 @@ struct sockaddr_in Socket::Recieve(std::pair<std::string*, size_t*> dest) const 
     struct sockaddr_in from;
     socklen_t addr_len = sizeof(from);
     auto read = recvfrom(fd_, buffer->data(), buffer->size(), 0, (struct sockaddr*)&from, &addr_len);
-    if (read < 0) {
+    if (read <= 0) {
         throw std::runtime_error("Failed to recieve data via socket");
     }
     *bytes_read = read;

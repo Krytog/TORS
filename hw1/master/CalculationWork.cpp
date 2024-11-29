@@ -44,6 +44,7 @@ namespace {
     std::unordered_map<sockaddr_in, Task, sockaddrhash, sockaddrequal> servers_to_tasks;
     std::unordered_map<size_t, double> results;
     std::queue<Task> tasks; 
+    WorkersRegistry* workers_registry;
 
 
     std::queue<Task> GetTasksQueue(const calculations::ArgPack& arg_pack) {
@@ -88,7 +89,8 @@ namespace {
         } catch (std::runtime_error& error) {
             std::cout << "Found dead server: " << server.sin_addr.s_addr << std::endl;
             std::cout << "Returning task with index " << servers_to_tasks[server].index << " to the tasks queue" << std::endl;
-            
+
+            workers_registry->RemoveUnsafe(server);
             tasks.push(servers_to_tasks[server]);
         }
 
@@ -136,6 +138,7 @@ namespace {
     void InitGlobals(const calculations::ArgPack& arg_pack, WorkersRegistry* registry) {
         mutex_ = &registry->GetMutex();
         tasks = GetTasksQueue(arg_pack);
+        workers_registry = registry;
     }
 
     double CalculateResultingValue() {
@@ -185,6 +188,7 @@ namespace calculations {
             tasks.pop();
 
             bool assigned = false;
+            std::vector<sockaddr_in> servers_to_prune;
             for (const auto& server : registry->GetRawSet()) {
                 if (servers_to_tasks.contains(server)) {
                     continue;
@@ -198,7 +202,12 @@ namespace calculations {
                     break;
                 } catch (std::runtime_error& error) {
                     std::cout << "Eror when assigning task " << error.what() << std::endl;
+                    servers_to_prune.push_back(server);
                 }
+            }
+
+            for (const auto& server : servers_to_prune) {
+                registry->RemoveUnsafe(server);
             }
 
             if (!assigned) {
