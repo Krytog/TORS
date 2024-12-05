@@ -3,7 +3,11 @@ FROM ubuntu
 RUN apt-get update && \
     apt-get install -y \
     build-essential \
-    cmake
+    cmake \
+    iputils-ping \
+    iproute2 \
+    net-tools \
+    iptables
 
 WORKDIR /TORS
 COPY . .
