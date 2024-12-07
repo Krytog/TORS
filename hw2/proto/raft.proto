@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package raft;
+
+import "google/protobuf/empty.proto";
+
+message VoteRequest {
+    uint64 term = 1;
+    uint64 candidate_id = 2;
+    uint64 log_last_term = 3;
+    uint64 log_last_index = 4;
+
+};
+
+message VoteResponse {
+    uint64 term = 1;
+    bool is_vote_granted = 2;
+};
+
+message AppendEntriesRequets {
+    uint64 term = 1;
+    uint64 leader_id = 2;
+    uint64 log_prev_term = 3;
+    uint64 log_prev_index = 4;
+    repeated string entries = 5;
+    uint64 leader_commit_index = 6;
+}
+
+message AppendEntriesResponse {
+    uint64 term = 1;
+    bool is_successful = 2;
+};
+
+service Raft {
+
+    rpc Vote(VoteRequest) returns (VoteResponse);
+
+    rpc AppendEntries(AppendEntriesRequets) returns (AppendEntriesResponse);
+
+};
