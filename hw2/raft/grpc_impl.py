@@ -20,9 +20,10 @@ class RaftGRPC(raft_pb2_grpc.RaftServicer):
                 term = STATE.term,
                 is_vote_granted = False,
             )
-        
-        if (STATE.log[-1].term > request.log_last_term or 
-           (STATE.log[-1].term == request.log_last_term and len(STATE.log) > len(request.log_last_index))):
+
+        if (len(STATE.log) > 0 and
+           (STATE.log[-1].term > request.log_last_term or 
+           (STATE.log[-1].term == request.log_last_term and len(STATE.log) > request.log_last_index))):
             return raft_pb2.VoteResponse(
                 term = STATE.term,
                 is_vote_granted = False,
@@ -34,4 +35,10 @@ class RaftGRPC(raft_pb2_grpc.RaftServicer):
         return raft_pb2.VoteResponse(
             term = STATE.term,
             is_vote_granted = True,
+        )
+
+    async def AppendEntries(self, request, context):
+        return raft_pb2.AppendEntriesResponse(
+            term = STATE.term,
+            is_successful = True,
         )

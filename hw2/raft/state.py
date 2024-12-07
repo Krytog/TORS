@@ -1,12 +1,17 @@
 from raft.config import CONFIG, MY_ID
 
 import pickle
-import logging
+from common.logging import logger
 
-
-logger = logging.getLogger()
 
 STATE_FILENAME = "state.pickle"
+
+
+class LogEntry:
+    def __init__(self, term, key, value):
+        self.term = term
+        self.key = key
+        self.value = value
 
 
 class State:
@@ -16,6 +21,7 @@ class State:
         self.term = 0
         self.voted_for = 0
         self.log = []
+        self.log.append(LogEntry(0, None, None))  # a dummy value so the log is never empty
 
         self.log_commited_index = 0
         self.log_last_applied = 0
@@ -51,7 +57,7 @@ class State:
 
 
 class LeaderState:
-    def __init__(self, my_id, leader_log_last_index):
+    def __init__(self, leader_log_last_index):
         self.log_next_indices = {}
         self.log_match_index = {}
         for server_id, _ in CONFIG.items():
@@ -59,5 +65,6 @@ class LeaderState:
             self.log_match_index[server_id] = 0
 
 
-STATE = State(MY_ID)
+STATE = State(1)
+STATE.load_state_from_storage()
 LEADER_STATE = None
