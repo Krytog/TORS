@@ -9,3 +9,6 @@ class Status(Enum):
 class StatusHolder:
     def __init__(self):
         self.status = Status.Follower
+
+
+STATUS_HOLDER = StatusHolder()

@@ -1,4 +1,4 @@
-from raft.config import CONFIG
+from raft.config import CONFIG, MY_ID
 
 import pickle
 import logging
@@ -54,6 +54,10 @@ class LeaderState:
     def __init__(self, my_id, leader_log_last_index):
         self.log_next_indices = {}
         self.log_match_index = {}
-        for server_id, _ in config.items():
+        for server_id, _ in CONFIG.items():
             self.log_next_indices[server_id] = leader_log_last_index + 1
             self.log_match_index[server_id] = 0
+
+
+STATE = State(MY_ID)
+LEADER_STATE = None
