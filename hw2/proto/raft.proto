@@ -33,7 +33,7 @@ message AppendEntriesResponse {
 
 service Raft {
 
-    rpc Vote(VoteRequest) returns (VoteResponse);
+    rpc AskVote(VoteRequest) returns (VoteResponse);
 
     rpc AppendEntries(AppendEntriesRequets) returns (AppendEntriesResponse);
 

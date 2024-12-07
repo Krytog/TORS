@@ -14,8 +14,8 @@ class RaftStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.Vote = channel.unary_unary(
-                '/raft.Raft/Vote',
+        self.AskVote = channel.unary_unary(
+                '/raft.Raft/AskVote',
                 request_serializer=proto_dot_raft__pb2.VoteRequest.SerializeToString,
                 response_deserializer=proto_dot_raft__pb2.VoteResponse.FromString,
                 )
@@ -29,7 +29,7 @@ class RaftStub(object):
 class RaftServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def Vote(self, request, context):
+    def AskVote(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -44,8 +44,8 @@ class RaftServicer(object):
 
 def add_RaftServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'Vote': grpc.unary_unary_rpc_method_handler(
-                    servicer.Vote,
+            'AskVote': grpc.unary_unary_rpc_method_handler(
+                    servicer.AskVote,
                     request_deserializer=proto_dot_raft__pb2.VoteRequest.FromString,
                     response_serializer=proto_dot_raft__pb2.VoteResponse.SerializeToString,
             ),
@@ -65,7 +65,7 @@ class Raft(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def Vote(request,
+    def AskVote(request,
             target,
             options=(),
             channel_credentials=None,
@@ -75,7 +75,7 @@ class Raft(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/raft.Raft/Vote',
+        return grpc.experimental.unary_unary(request, target, '/raft.Raft/AskVote',
             proto_dot_raft__pb2.VoteRequest.SerializeToString,
             proto_dot_raft__pb2.VoteResponse.FromString,
             options, channel_credentials,
