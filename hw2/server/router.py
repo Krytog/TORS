@@ -2,6 +2,7 @@ from raft.state import STATE, LogEntry
 from raft.config import MY_ID, CONFIG
 from db import crud
 from db import log_applier
+from db.db import KV_STORE
 
 from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
@@ -35,7 +36,7 @@ async def get_leader():
 
 @router.get("/data/{key}")
 async def read_key(key):
-    value = crud.read_key(key)
+    value = crud.read_key(key) # FIX ALL THAT AND MAKE APPLIES IN GRPC
     if value:
         return JSONResponse(status_code=status.HTTP_200_OK, content={"value": value})
     return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"message": "No such key exists"})
@@ -52,6 +53,7 @@ async def create_key(key, value):
             value=value
         )
     )
+    print(f'Awaiting for {index} to apply', flush=True)
     result = await log_applier.wait_for_apply(index)
     if result is False:
         return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={"message": "Failed to create: such a key already exists"})
@@ -90,3 +92,14 @@ async def update_key(key, value):
     if result is False:
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"message": "Failed to update: no such key"})
     return JSONResponse(status_code=status.HTTP_200_OK, content={"message": "Successfully updated"})
+
+
+@router.get("/debug/log")
+async def debug_log():
+    size = len(STATE.log)
+    return JSONResponse(status_code=status.HTTP_200_OK, content={"message": f"Log size is {size}"})
+
+
+@router.get("/debug/store")
+async def debug_store():
+    return JSONResponse(status_code=status.HTTP_200_OK, content=KV_STORE.data)

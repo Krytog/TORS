@@ -26,3 +26,19 @@ create() {
 
     curl -s -X POST "$url"
 }
+
+debug_log() {
+    local addr=$1
+
+    local url="http://$addr/debug/log"
+
+    curl -s -X GET "$url"
+}
+
+debug_store() {
+    local addr=$1
+
+    local url="http://$addr/debug/store"
+
+    curl -s -X GET "$url"
+}

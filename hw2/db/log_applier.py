@@ -15,10 +15,10 @@ def apply_log_entry(log_entry):
 
 async def wait_for_apply(index):
     last_result = None
-    while index < STATE.log_last_applied:
+    while index > STATE.log_last_applied:
         while STATE.log_commited_index > STATE.log_last_applied:
-            last_result = apply_log_entry(STATE.get_log_entry_safe(STATE.log_last_applied))
+            last_result = apply_log_entry(STATE.get_log_entry_safe(STATE.log_last_applied + 1))
             STATE.log_last_applied += 1
-        if index < STATE.log_last_applied:
+        if index > STATE.log_last_applied:
             await asyncio.sleep(0)
     return last_result

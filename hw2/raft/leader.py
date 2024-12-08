@@ -52,10 +52,12 @@ def heartbeat_task(server, grpc_stub):
             return
 
         if response.is_successful:
+            print('AppendEntries ok', flush=True)
             with LEADER_STATE.mutex:
                 LEADER_STATE.log_next_index[server] = len(STATE.log)
                 LEADER_STATE.log_match_index[server] = len(STATE.log) - 1
         else:
+            print('AppendEntries false', flush=True)
             with LEADER_STATE.mutex:
                 LEADER_STATE.log_next_index[server] -= 1
 
@@ -99,7 +101,8 @@ def leader_routine():
 
         while STATUS_HOLDER.status == Status.Leader:
             timepoint = time()
-            print("I'M LEADER, MY LOG IS:", STATE.log, flush=True)
+            print("I'M LEADER, MY LOG IS:", STATE.log, STATE.log_commited_index, flush=True)
             send_heartbeats()
+            try_commit()
             while time() < timepoint + BETWEEN_HEARTBEATS:
                 pass

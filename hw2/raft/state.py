@@ -71,7 +71,7 @@ class State:
         output = None
         with self.__mutex:
             self.log.append(entry)
-            output = len(self.log)
+            output = len(self.log) - 1
         return output
         
 
