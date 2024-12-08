@@ -4,6 +4,8 @@ from raft.timings import TIMING
 from proto import raft_pb2 as raft_pb2
 from proto import raft_pb2_grpc as raft_pb2_grpc
 
+from db.log_applier import wait_for_apply
+
 from time import time
 
 
@@ -82,6 +84,7 @@ class RaftGRPC(raft_pb2_grpc.RaftServicer):
         
         if request.leader_commit_index > STATE.log_commited_index:
             STATE.log_commited_index = min(request.leader_commit_index, len(STATE.log) - 1)
+            await wait_for_apply(STATE.log_commited_index)
 
         return raft_pb2.AppendEntriesResponse(
             term = STATE.term,

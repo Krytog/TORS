@@ -36,7 +36,7 @@ async def get_leader():
 
 @router.get("/data/{key}")
 async def read_key(key):
-    value = crud.read_key(key) # FIX ALL THAT AND MAKE APPLIES IN GRPC
+    value = crud.read_key(key)
     if value:
         return JSONResponse(status_code=status.HTTP_200_OK, content={"value": value})
     return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"message": "No such key exists"})
