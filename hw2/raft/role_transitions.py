@@ -29,5 +29,6 @@ def transit_to_leader():
     LEADER_STATE = LeaderState(len(STATE.log))
     with LEADER_CONDVAR:
         STATUS_HOLDER.status = Status.Leader
+        STATE.leader_id = MY_ID
         LEADER_CONDVAR.notify()
     logger.info(f"Server {MY_ID} transited to leader mode in term {STATE.term}")
