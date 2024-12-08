@@ -42,6 +42,9 @@ class Elections:
     def reset_count(self):
         self.__count = 0
 
+    def add_vote(self):
+        self.__count += 1
+
 
 ELECTIONS = Elections()
 
@@ -77,11 +80,16 @@ def vote_task(grpc_stub):
 
 
 def elections():
+    ELECTIONS.reset_count()
     STATE.term += 1
+    
+    # voting for ourself
+    STATE.voted_for = MY_ID 
+    ELECTIONS.add_vote()
+
     role_transitions.transit_to_candidate()
     logger.info(f"Elections for term {STATE.term} from server {MY_ID} are started")
 
-    ELECTIONS.reset_count()
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = set()
         for _, grpc_stub in SERVER_MASTER.servers.items():
