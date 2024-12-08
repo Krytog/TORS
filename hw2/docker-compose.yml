@@ -3,7 +3,10 @@ services:
     build: .
     environment:
       MY_ID: 1
+      API_HOST: "0.0.0.0"
+      API_PORT: "31337"
     ports:
+      - "10337:10337"
       - "31337:31337"
     volumes:
       - "volume1:/main"
@@ -12,7 +15,10 @@ services:
     build: .
     environment:
       MY_ID: 2
+      API_HOST: "0.0.0.0"
+      API_PORT: "31338"
     ports:
+      - "10338:10338"
       - "31338:31338"
     volumes:
       - "volume2:/main"
@@ -21,7 +27,10 @@ services:
     build: .
     environment:
       MY_ID: 3
+      API_HOST: "0.0.0.0"
+      API_PORT: "31339"
     ports:
+      - "10339:10339"
       - "31339:31339"
     volumes:
       - "volume3:/main"

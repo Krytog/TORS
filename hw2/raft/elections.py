@@ -82,6 +82,7 @@ def vote_task(grpc_stub):
 def elections():
     ELECTIONS.reset_count()
     STATE.term += 1
+    STATE.leader_id = 0
     
     # voting for ourself
     STATE.voted_for = MY_ID 

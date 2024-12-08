@@ -48,7 +48,14 @@ class RaftGRPC(raft_pb2_grpc.RaftServicer):
         if request.term > STATE.term:
             STATE.update_if_stale(request.term)
 
+        if request.term < STATE.term:
+            return raft_pb2.AppendEntriesResponse(
+            term = STATE.term,
+            is_successful = False,
+        )
+        
         TIMING.set_new_last_action_timestamp_safe(time())
+        STATE.leader_id = request.leader_id
 
         return raft_pb2.AppendEntriesResponse(
             term = STATE.term,

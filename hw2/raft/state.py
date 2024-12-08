@@ -17,6 +17,7 @@ class LogEntry:
 class State:
     def __init__(self, my_id):
         self.my_id = my_id
+        self.leader_id = 0
 
         self.term = 0
         self.voted_for = 0
