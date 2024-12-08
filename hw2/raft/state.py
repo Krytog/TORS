@@ -27,6 +27,11 @@ class State:
         self.log_last_applied = 0
 
     
+    def update_if_stale(self, new_term):
+        self.term = new_term
+        self.voted_for = 0
+
+
     def dump_state_to_storage(self):
         data = {}
         data["id"] = self.my_id

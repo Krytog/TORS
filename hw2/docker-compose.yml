@@ -5,6 +5,8 @@ services:
       MY_ID: 1
     ports:
       - "31337:31337"
+    volumes:
+      - "volume1:/main"
   
   server2:
     build: .
@@ -12,6 +14,8 @@ services:
       MY_ID: 2
     ports:
       - "31338:31338"
+    volumes:
+      - "volume2:/main"
 
   server3:
     build: .
@@ -19,17 +23,10 @@ services:
       MY_ID: 3
     ports:
       - "31339:31339"
+    volumes:
+      - "volume3:/main"
 
-  server4:
-    build: .
-    environment:
-      MY_ID: 4
-    ports:
-      - "31340:31340"
-
-  server5:
-    build: .
-    environment:
-      MY_ID: 5
-    ports:
-      - "31341:31341"
+volumes:
+  volume1:
+  volume2:
+  volume3:
