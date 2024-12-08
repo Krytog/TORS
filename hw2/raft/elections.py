@@ -1,5 +1,5 @@
 from raft.config import CONFIG, MY_ID
-from raft.servers import SERVERS
+from raft.servers import ServerAsyncMaster
 from raft.state import STATE
 from raft.timings import TIMING
 import raft.role_transitions as role_transitions
@@ -9,7 +9,10 @@ from proto import raft_pb2
 import asyncio
 from common.logging import logger
 from threading import Lock
-from time import time
+from time import time, sleep
+
+
+# SERVER_ASYNC_MASTER = None
 
 
 class Elections:
@@ -66,8 +69,9 @@ async def elections():
     STATE.term += 1
     logger.info(f"Elections for term {STATE.term} from server {MY_ID} are started")
 
+    SERVER_ASYNC_MASTER = ServerAsyncMaster()
     tasks = set()
-    for _, grpc_stub in SERVERS.items():
+    for _, grpc_stub in SERVER_ASYNC_MASTER.servers.items():
         tasks.add(asyncio.create_task(vote_task(grpc_stub)))
 
     while ELECTIONS.is_in_process_safe() and len(tasks) > 0:
@@ -76,9 +80,20 @@ async def elections():
     ELECTIONS.set_is_in_process_safe(False)
 
 
+def init_server_async_master():
+    pass#global SERVER_ASYNC_MASTER
+    #SERVER_ASYNC_MASTER = ServerAsyncMaster()
+
+
 def elections_routine():
+    asyncio.run(elections_routine_inner())
+
+
+async def elections_routine_inner():
+    sleep(3)
+    init_server_async_master()
     while True:
         if TIMING.should_start_elections():
             logger.info(f"Server {MY_ID} timeouts and starts new elections")
             ELECTIONS.set_is_in_process_safe(True)
-            asyncio.run(elections())
+            await elections()

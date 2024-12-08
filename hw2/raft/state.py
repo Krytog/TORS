@@ -65,6 +65,6 @@ class LeaderState:
             self.log_match_index[server_id] = 0
 
 
-STATE = State(1)
+STATE = State(MY_ID)
 STATE.load_state_from_storage()
 LEADER_STATE = None

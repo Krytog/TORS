@@ -1,0 +1,35 @@
+services:
+  server1:
+    build: .
+    environment:
+      MY_ID: 1
+    ports:
+      - "31337:31337"
+  
+  server2:
+    build: .
+    environment:
+      MY_ID: 2
+    ports:
+      - "31338:31338"
+
+  server3:
+    build: .
+    environment:
+      MY_ID: 3
+    ports:
+      - "31339:31339"
+
+  server4:
+    build: .
+    environment:
+      MY_ID: 4
+    ports:
+      - "31340:31340"
+
+  server5:
+    build: .
+    environment:
+      MY_ID: 5
+    ports:
+      - "31341:31341"
