@@ -3,13 +3,16 @@ from raft.config import CONFIG, MY_ID
 import pickle
 from common.logging import logger
 
+from threading import Lock
+
 
 STATE_FILENAME = "state.pickle"
 
 
 class LogEntry:
-    def __init__(self, term, key, value):
+    def __init__(self, term, command, key, value):
         self.term = term
+        self.command = command
         self.key = key
         self.value = value
 
@@ -22,10 +25,12 @@ class State:
         self.term = 0
         self.voted_for = 0
         self.log = []
-        self.log.append(LogEntry(0, None, None))  # a dummy value so the log is never empty
+        self.log.append(LogEntry(0, None, None, None))  # a dummy value so the log is never empty
 
         self.log_commited_index = 0
         self.log_last_applied = 0
+        
+        self.__mutex = Lock()
 
     
     def update_if_stale(self, new_term):
@@ -60,6 +65,32 @@ class State:
         self.term = data.get("term")
         self.voted_for = data.get("voted_for")
         self.log = data.get("log")
+
+
+    def append_to_log_safe(self, entry):
+        output = None
+        with self.__mutex:
+            self.log.append(entry)
+            output = len(self.log)
+        return output
+        
+
+    def get_log_tail_safe(self, index_from):
+        output = []
+        with self.__mutex:
+            for i in range(index_from, len(self.log)):
+                output.append(self.log[i])
+        return output
+    
+    def get_log_entry_safe(self, index):
+        output = None
+        with self.__mutex:
+            output = self.log[index]
+        return output
+    
+    def remove_log_tail_safe(self, last_index):
+        with self.__mutex:
+            self.log = self.log[:last_index + 1]
 
 
 class LeaderState:

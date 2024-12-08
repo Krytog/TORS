@@ -12,3 +12,18 @@ def create_key(key, value):
         return False
     KV_STORE.data[key] = value
     return True
+
+
+def delete_key(key):
+    if key in KV_STORE.data:
+        KV_STORE.remove(key)
+        return True
+    return False
+
+
+def update_key(key, value):
+    if key not in KV_STORE.data:
+        return False
+    KV_STORE.data[key] = value
+    return True
+ 
