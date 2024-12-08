@@ -9,8 +9,6 @@ from common.logging import logger
 def transit_to_follower():
     if STATUS_HOLDER.status == Status.Follower:
         return
-    global LEADER_STATE
-    LEADER_STATE = None
     STATUS_HOLDER.status = Status.Follower
     logger.info(f"Server {MY_ID} transited to follower mode in term {STATE.term}")
 
@@ -25,8 +23,7 @@ def transit_to_candidate():
 def transit_to_leader():
     if STATUS_HOLDER.status == Status.Leader:
         return
-    global LEADER_STATE
-    LEADER_STATE = LeaderState(len(STATE.log))
+    LEADER_STATE.reinit(len(STATE.log) - 1)
     with LEADER_CONDVAR:
         STATUS_HOLDER.status = Status.Leader
         STATE.leader_id = MY_ID

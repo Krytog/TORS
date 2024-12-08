@@ -64,12 +64,13 @@ class RaftGRPC(raft_pb2_grpc.RaftServicer):
         
         to_insert_index = 0
         for i in range(len(request.entries)):
-            if STATE.get_log_entry_safe(request.log_prev_index + 1 + i).term != request.entries[i].term:
+            if (len(STATE.log) >= request.log_prev_index + 2 + i and 
+                STATE.get_log_entry_safe(request.log_prev_index + 1 + i).term != request.entries[i].term):
                 to_insert_index = i
 
-        STATE.remove_log_tail_safe(request.log_prev_index + i)
+        STATE.remove_log_tail_safe(request.log_prev_index + to_insert_index)
 
-        for i in range(to_insert_index, len(request.entries[i])):
+        for i in range(to_insert_index, len(request.entries)):
             STATE.append_to_log_safe(
                 LogEntry(
                     term=request.entries[i].term,

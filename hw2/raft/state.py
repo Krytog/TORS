@@ -95,13 +95,22 @@ class State:
 
 class LeaderState:
     def __init__(self, leader_log_last_index):
-        self.log_next_indices = {}
+        self.log_next_index = {}
         self.log_match_index = {}
-        for server_id, _ in CONFIG.items():
-            self.log_next_indices[server_id] = leader_log_last_index + 1
-            self.log_match_index[server_id] = 0
+        self.mutex = Lock()
+        self.reinit(leader_log_last_index)
 
+    def reinit(self, leader_log_last_index):
+        for server, _ in CONFIG.items():
+            server_id = int(server)
+            self.log_next_index[server_id] = leader_log_last_index + 1
+            self.log_match_index[server_id] = 1
+
+    def get_indices_safe(self, server):
+        with self.mutex:
+            return self.log_next_index[server], self.log_match_index[server]
+            
 
 STATE = State(MY_ID)
 STATE.load_state_from_storage()
-LEADER_STATE = None
+LEADER_STATE = LeaderState(0)
