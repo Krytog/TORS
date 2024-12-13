@@ -67,7 +67,7 @@ def send_heartbeats():
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = set()
         for server, grpc_stub in SERVER_MASTER.servers.items():
-            futures.add(executor.submit(heartbeat_task(server, grpc_stub)))
+            futures.add(executor.submit(heartbeat_task, server, grpc_stub))
 
         try:
             for _ in concurrent.futures.as_completed(futures, timeout=HEARTBEAT_CYCLE_TIMEOUT):

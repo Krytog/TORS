@@ -94,7 +94,7 @@ def elections():
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = set()
         for _, grpc_stub in SERVER_MASTER.servers.items():
-            futures.add(executor.submit(vote_task(grpc_stub)))
+            futures.add(executor.submit(vote_task, grpc_stub))
 
         try:
             for _ in concurrent.futures.as_completed(futures, timeout=ELECTIONS_WAITING_TIMEOUT):
