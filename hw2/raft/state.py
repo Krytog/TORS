@@ -10,11 +10,12 @@ STATE_FILENAME = "state.pickle"
 
 
 class LogEntry:
-    def __init__(self, term, command, key, value):
+    def __init__(self, term, command, key, value, old_value = None):
         self.term = term
         self.command = command
         self.key = key
         self.value = value
+        self.old_value = old_value
 
 
 class State:

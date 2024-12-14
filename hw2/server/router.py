@@ -145,6 +145,26 @@ async def update_key(key, value):
     return JSONResponse(status_code=status.HTTP_200_OK, content={"message": "Successfully updated"})
 
 
+@router.patch("/compare_and_swap")
+@need_authority
+async def cas_key(key, value, old_value):
+    index = STATE.append_to_log_safe(
+        LogEntry(
+            term=STATE.term,
+            command="cas",
+            key=key,
+            value=value,
+            old_value=old_value,
+        )
+    )
+    result = await log_applier.wait_for_apply(index)
+    if result is None:
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"message": "Failed to cas: no such key"})
+    if result is False:
+        return JSONResponse(status_code=status.HTTP_200_OK, content={"success": "False", "message": "Value is not changed, old_value != cur_value"})
+    return JSONResponse(status_code=status.HTTP_200_OK, content={"success": "True", "message": "Successfully changed value"})
+
+
 @router.get("/debug/log")
 async def debug_log():
     size = len(STATE.log)

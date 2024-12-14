@@ -20,6 +20,7 @@ message LogEntry {
     string command = 2;
     string key = 3;
     optional string value = 4;
+    optional string old_value = 5;
 }
 
 message AppendEntriesRequest {

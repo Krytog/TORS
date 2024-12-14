@@ -27,6 +27,17 @@ create() {
     curl -s -X POST "$url"
 }
 
+cas() {
+    local addr=$1
+    local key=$2
+    local value=$3
+    local old_value=$4
+
+    local url="http://$addr/compare_and_swap?key=$key&value=$value&old_value=$old_value"
+
+    curl -s -X PATCH "$url"
+}
+
 debug_log() {
     local addr=$1
 

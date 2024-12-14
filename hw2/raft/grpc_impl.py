@@ -79,6 +79,7 @@ class RaftGRPC(raft_pb2_grpc.RaftServicer):
                     command=request.entries[i].command,
                     key=request.entries[i].key,
                     value=request.entries[i].value,
+                    old_value=request.entries[i].old_value,
                 )
             )
         

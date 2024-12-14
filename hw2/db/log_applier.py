@@ -11,6 +11,8 @@ def apply_log_entry(log_entry):
         return crud.delete_key(log_entry.key)
     elif log_entry.command == "update":
         return crud.update_key(log_entry.key, log_entry.value)
+    elif log_entry.command == "cas":
+        return crud.cas_key(log_entry.key, log_entry.value, log_entry.old_value)
 
 
 async def wait_for_apply(index):

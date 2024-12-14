@@ -21,7 +21,6 @@ class Timing:
     
     def set_new_random_timeout(self):
         self.elections_timeout = randint(ELECTIONS_TIMEOUT_FROM, ELECTIONS_TIMEOUT_TO) / 1000
-        print("New elections timeout is:", self.elections_timeout)
 
     def set_new_last_action_timestamp_safe(self, value):
         with self.mutex:

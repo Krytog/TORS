@@ -27,3 +27,11 @@ def update_key(key, value):
     KV_STORE.data[key] = value
     return True
  
+
+def cas_key(key, value, old_value):
+    if key not in KV_STORE.data:
+        return None
+    if KV_STORE.data[key] != old_value:
+        return False
+    KV_STORE.data[key] = value
+    return True

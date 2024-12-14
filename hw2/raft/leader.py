@@ -31,6 +31,7 @@ def heartbeat_task(server, grpc_stub):
                     command=entry.command,
                     key=entry.key,
                     value=entry.value,
+                    old_value=entry.old_value
                 )
             )
         entry = STATE.get_log_entry_safe(next_index - 1)
