@@ -27,7 +27,7 @@ def get_leader(id):
     return response.json()["leader_id"]
 
 def read(id, key):
-    response = requests.get(f"http://{ID_TO_ADDRESS[id]}/read?key={key}")
+    response = requests.get(f"http://{ID_TO_ADDRESS[id]}/data/{key}")
     return response
 
 def create(id, key, value):
