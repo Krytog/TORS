@@ -1,22 +1,29 @@
 from crdt.config import CONFIG
+from crdt.communication import COMMUNICATION_STATUS
 from common.logger import logger
 
+import requests
 import concurrent
 import time
 
 
-BETWEEN_HEARTBEATS = 1.0
+BETWEEN_HEARTBEATS = 5.0
+HEARTBEAT_MESSAGE_TIMEOUT = 0.3
 HEARTBEAT_CYCLE_TIMEOUT = 0.5
 
 
 def heartbeat_task(server, log):
-    pass
+    try:
+        requests.put(f"http://{server}/sync", json={"log": tuple(log)}, timeout=HEARTBEAT_MESSAGE_TIMEOUT)
+    except Exception as err:
+        logger.error(f"Something went wrong during the heartbeat task. What: {str(err)}")
 
 
 def send_heartbeats(crdt):
-    log = None
+    log = []
     with crdt.mutex:
-        log = crdt.log.copy()
+        for entry in crdt.log:
+            log.append(entry.get_serialized())
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = set()
@@ -39,5 +46,8 @@ def sleep_until(timepoint):
 def heartbeats_routine(crdt):
     while True:
         timepoint = time.time()
-        send_heartbeats(crdt)
+
+        if COMMUNICATION_STATUS.should_communicate:
+            send_heartbeats(crdt)
+
         sleep_until(timepoint + BETWEEN_HEARTBEATS)

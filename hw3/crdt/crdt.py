@@ -12,6 +12,17 @@ class LogEntry:
         self.value = value
         self.vectorclock = vectorclock
 
+    def get_serialized(self):
+        return {
+            "source": self.source,
+            "key": self.key,
+            "value": self.value,
+            "vectorclock": self.vectorclock.timestamps,
+        }
+    
+    def from_serialized(data):
+        return LogEntry(data["source"], data["key"], data["value"], VectorClock(data["vectorclock"]))
+
 
 class CRDT:
     def __init__(self, my_id):
@@ -43,31 +54,31 @@ class CRDT:
 
     def set_key_safe(self, key, value, vectorclock, source):
         if key not in self.data:
-            self.set_key_unsafe(self, key, value, vectorclock)
+            self.set_key_unsafe(key, value, vectorclock, source)
             return
-        
+
         keyclock = self.keysclocks[key]
         compare_status = self.localclock.compare_against(keyclock)
 
         if compare_status == CompareStatus.After:
-            logger.info(f"Tried to append key {key}, but localclock is AFTER")
+            logger.debug(f"Tried to append key {key}, but localclock is AFTER")
             return
 
         if compare_status == CompareStatus.Before:
-            self.set_key_unsafe(key, value, vectorclock)
-            logger.info(f"Successfully set {key}={value}, localclock is BEFORE")
+            self.set_key_unsafe(key, value, vectorclock, source)
+            logger.debug(f"Successfully set {key}={value}, localclock is BEFORE")
             return
 
         if compare_status == CompareStatus.Conflict:
             if self.id < source:
-                self.set_key_unsafe(key, value, vectorclock)
-                logger.info(f"Successfully set {key}={value}, localclock CONFLICTS, but our id is lesser: {self.id} < {source}")
+                self.set_key_unsafe(key, value, vectorclock, source)
+                logger.debug(f"Successfully set {key}={value}, localclock CONFLICTS, but our id is lesser: {self.id} < {source}")
             else:
-                logger.info(f"Tried to append key {key}, localclock CONFLICTS, but our id is greater: {self.id} > {source}")
+                logger.debug(f"Tried to append key {key}, localclock CONFLICTS, but our id is greater: {self.id} > {source}")
             return
         
         if compare_status == CompareStatus.Same:
-            logger.error(f"Something went really wrong, localclock is SAME")
+            logger.debug(f"Do not do anything, localclock is SAME")
             return
 
 CRDT_INSTANCE = CRDT(MY_ID)
