@@ -41,4 +41,4 @@ class VectorClock:
             if server in self.timestamps:
                 self.timestamps[server] = max(self.timestamps[server], timestamp)
             else:
-                self,timestamp[server] = timestamp
+                self.timestamp[server] = timestamp

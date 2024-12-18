@@ -1,0 +1,27 @@
+services:
+  server1:
+    build: .
+    environment:
+      MY_ID: 1
+      API_HOST: "0.0.0.0"
+      API_PORT: "31337"
+    ports:
+      - "31337:31337"
+  
+  server2:
+    build: .
+    environment:
+      MY_ID: 2
+      API_HOST: "0.0.0.0"
+      API_PORT: "31338"
+    ports:
+      - "31338:31338"
+
+  server3:
+    build: .
+    environment:
+      MY_ID: 3
+      API_HOST: "0.0.0.0"
+      API_PORT: "31339"
+    ports:
+      - "31339:31339"
