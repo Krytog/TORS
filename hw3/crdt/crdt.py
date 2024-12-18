@@ -21,7 +21,10 @@ class LogEntry:
         }
     
     def from_serialized(data):
-        return LogEntry(data["source"], data["key"], data["value"], VectorClock(data["vectorclock"]))
+        normal_map = {}
+        for key, value in data["vectorclock"].items():
+            normal_map[int(key)] = value
+        return LogEntry(data["source"], data["key"], data["value"], VectorClock(normal_map))
 
 
 class CRDT:
@@ -58,7 +61,9 @@ class CRDT:
             return
 
         keyclock = self.keysclocks[key]
-        compare_status = self.localclock.compare_against(keyclock)
+        compare_status = keyclock.compare_against(vectorclock)
+
+        logger.debug(f"Working with {key}={value}, its keyclock: {keyclock.timestamps}, given vectorclock: {vectorclock.timestamps}, status: {compare_status}")
 
         if compare_status == CompareStatus.After:
             logger.debug(f"Tried to append key {key}, but localclock is AFTER")

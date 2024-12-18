@@ -27,8 +27,9 @@ def send_heartbeats(crdt):
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = set()
-        for _, server in CONFIG.items():
-            futures.add(executor.submit(heartbeat_task, server, log))
+        for server_id, server_addr in CONFIG.items():
+            if server_id != crdt.id:
+                futures.add(executor.submit(heartbeat_task, server_addr, log))
         try:
             for _ in concurrent.futures.as_completed(futures, timeout=HEARTBEAT_CYCLE_TIMEOUT):
                 pass
